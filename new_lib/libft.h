@@ -281,5 +281,6 @@ char				*joinfree(char *s1, char *s2, int n);
 char				*ft_nstrncpy(char *str1, const char *str2);
 int					ft_while_nbl(char *str, char n, char c);
 int					ft_rwhile_nbl(char *str, char n, char c, char m);
+char				*join3free(char *s1, char *s2, char *s3, int n);
 
 #endif

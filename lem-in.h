@@ -20,7 +20,12 @@
 typedef struct		s_lem_in
 {
 	int				ants;
+	char			*rooms;
 	char			*coments;
+	char			*start;
+	char			*end;
 }					t_lm;
+
+int					get_data(t_lm *data);
 
 #endif
