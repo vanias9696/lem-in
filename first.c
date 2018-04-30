@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lem-in.h"
-
-#include <stdio.h>
+#include "lem_in.h"
 
 static void	free_data(t_lm *data)
 {
@@ -27,10 +25,32 @@ static void	free_data(t_lm *data)
 	free(data);
 }
 
+static void	free_tree(t_tr *t)
+{
+	t_tr	*temp;
+	int		i;
 
-int		check(void)
+	while(t)
+	{
+		if (t->name)
+			free(t->name);
+		if (t->rooms)
+		{
+			i = 0;
+			while(t->rooms[i])
+				free(t->rooms[i++]);
+			free(t->rooms);
+		}
+		temp = t;
+		t = t->next;
+		free(temp);
+	}
+}
+
+int			check(void)
 {
 	t_lm	*data;
+	t_tr	*t;
 
 	if (!(data = (t_lm *)malloc(sizeof(t_lm))))
 		return (0);
@@ -44,25 +64,26 @@ int		check(void)
 		free_data(data);
 		return (0);
 	}
-	else
+	if (!(t = (t_tr *)malloc(sizeof(t_tr))))
+		return (0);
+	if (get_tree(t, data) == 0)
 	{
 		ft_printf("\x1b[1;37m\n");
-		ft_printf("ants -> %i\n----------------\n", data->ants);
-		if (data->rooms)
-			ft_printf("rooms:\n%s\n----------------\n", data->rooms);
-		if (data->coments)
-			ft_printf("coments:\n%s\n----------------\n", data->coments);
-		if (data->start)
-			ft_printf("start -> %s\n----------------\n", data->start);
-		if (data->end)
-			ft_printf("end -> %s\n----------------\n", data->end);
+		free_tree(t);
 		free_data(data);
-		ft_printf("All good\n");
+		return (0);
+	}
+	else
+	{
+		ft_printf("\x1b[1;37mAll good\n");
+		free_tree(t);
+		free_data(data);
+
 	}
 	return (1);
 }
 
-int main()
+int			main(void)
 {
 	check();
 	system("leaks lem-in -quiet");
