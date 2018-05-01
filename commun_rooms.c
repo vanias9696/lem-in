@@ -60,11 +60,13 @@ static int	num_link(char *com, char *name, int i, int n)
 
 
 
-static char	*fill_rooms(char *name, char *room, char *com, int l)
+static char	*fill_rooms(char *name, char *room, char *com, int p)
 {
 	int			k;
 	static int	i;
+	int			l;
 
+	l = ft_strlen(name);
 	while (com[i] != '\0')
 	{
 		if (ft_strncmp(com + i, name, l) == 0 &&
@@ -77,12 +79,13 @@ static char	*fill_rooms(char *name, char *room, char *com, int l)
 			room = (char *)malloc(sizeof(char *) * (k - i + 1));
 			room = ft_strncpy(room, com + i, k - i);
 			room[k - i] = '\0';
-			i = k + 1;
+			i = p == 1 ? 0 : k + 1;
 			return (room);
 		}
 		else
-			
 		{
+			if (i == 0)
+				i++;
 			while (com[i - 1] != '-')
 				i++;
 			if (ft_strncmp(com + i, name, l) == 0 &&
@@ -95,7 +98,7 @@ static char	*fill_rooms(char *name, char *room, char *com, int l)
 				room = (char *)malloc(sizeof(char *) * (i - k + 1));
 				room = ft_strncpy(room, com + k, i - k);
 				room[i - k] = '\0';
-				i = i + 2;
+				i = p == 1 ? 0 : i + 2 + ft_strlen(name);
 				return (room);
 			}
 			while (com[i - 1] && com[i - 1] != '\n')
@@ -124,10 +127,11 @@ char		**comm_betw_rooms(char *com, char *name)
 	i = 0;
 	while (i < l)
 	{
-		rooms[i] = fill_rooms(name, rooms[i], com, ft_strlen(name));
+		rooms[i] = fill_rooms(name, rooms[i], com, i + 1 == l ? 1 : 0);
 		if (rooms[i] == 0)
 			return (0);
 		i++;
 	}
+	system("leaks lem-in -quiet");
 	return (rooms);
 }
