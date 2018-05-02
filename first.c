@@ -14,30 +14,45 @@
 
 static void	free_data(t_lm *data)
 {
-	if (data->rooms)
+	if (data && data->rooms)
 		free(data->rooms);
-	if (data->coments)
+	if (data && data->coments)
 		free(data->coments);
-	if (data->start)
+	if (data && data->start)
 		free(data->start);
-	if (data->end)
+	if (data && data->end)
 		free(data->end);
-	free(data);
+	if (data)
+		free(data);
 }
+
+// static void	free_ways(t_way *way)
+// {
+// 	int i;
+
+// 	if (way && way->way)
+// 	{
+// 		i = 0;
+// 		while(way->way[i])
+// 			free(way->way[i++]);
+// 		free(way->way);
+// 	}
+// 	free(way);
+// }
 
 static void	free_tree(t_tr *t)
 {
 	t_tr	*temp;
 	int		i;
 
-	while(t)
+	while (t)
 	{
 		if (t->name)
 			free(t->name);
 		if (t->rooms)
 		{
 			i = 0;
-			while(t->rooms[i])
+			while (t->rooms[i])
 				free(t->rooms[i++]);
 			free(t->rooms);
 		}
@@ -51,6 +66,7 @@ int			check(void)
 {
 	t_lm	*data;
 	t_tr	*t;
+	//t_way	*way;
 
 	if (!(data = (t_lm *)malloc(sizeof(t_lm))))
 		return (0);
@@ -58,28 +74,30 @@ int			check(void)
 	data->coments = NULL;
 	data->start = NULL;
 	data->end = NULL;
-	if (get_data(data) == 0)
+	if (get_data(data, 0) == 0 || !(t = (t_tr *)malloc(sizeof(t_tr))))
 	{
 		ft_printf("\x1b[1;37m\n");
 		free_data(data);
 		return (0);
 	}
-	if (!(t = (t_tr *)malloc(sizeof(t_tr))))
-		return (0);
-	if (get_tree(t, data) == 0)
+	if (get_tree(t, data, 1) == 0 || last_check(t) == 0)// || !(way = (t_way *)malloc(sizeof(t_way))))
 	{
-		ft_printf("\x1b[1;37m\n");
+		ft_printf("\x1b[1;37m");
 		free_tree(t);
 		free_data(data);
 		return (0);
 	}
-	else
-	{
-		ft_printf("\x1b[1;37mAll good\n");
-		free_tree(t);
-		free_data(data);
-
-	}
+	// if (unique_ways(t, way) == 0)
+	// {
+	// 	ft_printf("\x1b[1;37m");
+	// 	free_tree(t);
+	// 	free_data(data);
+	// 	free_ways(way);
+	// 	return (0);
+	// }
+	ft_printf("\x1b[1;37mAll good\n");
+	free_tree(t);
+	free_data(data);
 	return (1);
 }
 

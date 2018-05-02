@@ -58,8 +58,6 @@ static int	num_link(char *com, char *name, int i, int n)
 	return (n);
 }
 
-
-
 static char	*fill_rooms(char *name, char *room, char *com, int p)
 {
 	int			k;
@@ -132,6 +130,5 @@ char		**comm_betw_rooms(char *com, char *name)
 			return (0);
 		i++;
 	}
-	system("leaks lem-in -quiet");
 	return (rooms);
 }

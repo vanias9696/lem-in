@@ -27,6 +27,12 @@ typedef struct		s_trees
 	struct s_trees	*next;
 }					t_tr;
 
+typedef struct		s_ways
+{
+	int				num;
+	char			**way;
+}					t_way;
+
 typedef struct		s_lem_in
 {
 	int				ants;
@@ -36,8 +42,10 @@ typedef struct		s_lem_in
 	char			*end;
 }					t_lm;
 
-int					get_data(t_lm *data);
-int					get_tree(t_tr *t, t_lm *data);
+int					get_data(t_lm *data, char *line);
+int					get_tree(t_tr *t, t_lm *data, int i);
 char				**comm_betw_rooms(char *com, char *name);
+int					last_check(t_tr *t);
+int					pr_free(char *str, char *line, int n);
 
 #endif

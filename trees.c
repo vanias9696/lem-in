@@ -56,35 +56,25 @@ static int	first_last(t_tr *t, char *sl, char *com, int n)
 	return (1);
 }
 
-static int	name_x_y(int l, t_tr *a, char *room)
-{
-	if (!(a->name = (char *)malloc(sizeof(char *) * (l + 1))))
-		return (0);
-	a->name = ft_strncpy(a->name, room, l);
-	a->name[l] = '\0';
-	a->x = ft_atoi(room + 1 + l);
-	a->y = ft_atoi(room + 1 + l + len_num(a->x));
-	return (1);
-}
-
 static int	else_room(t_tr *a, t_lm *d, int n)
 {
 	int i;
 	int k;
 
-	i = 1;
-	k = 0;
-	while(i != n)
-	{
-		k = k + ft_while_not_n(d->rooms + k, '\n');
-		k++;
-		i++;
-	}
 	i = 0;
-	while(d->rooms[i + k] != ' ')
+	k = 0;
+	while (++i != n)
+		k = k + ft_while_not_n(d->rooms + k, '\n') + 1;
+	i = 0;
+	while (d->rooms[i + k] != ' ')
 		i++;
 	a->note = 0;
-	i = name_x_y(i, a, d->rooms + k);
+	if (!(a->name = (char *)malloc(sizeof(char *) * (i + 1))))
+		return (-1);
+	a->name = ft_strncpy(a->name, d->rooms + k, i);
+	a->name[i] = '\0';
+	a->x = ft_atoi(d->rooms + k + 1 + i);
+	a->y = ft_atoi(d->rooms + k + 1 + i + len_num(a->x));
 	if (i == 0)
 		return (-1);
 	a->rooms = comm_betw_rooms(d->coments, a->name);
@@ -95,11 +85,31 @@ static int	else_room(t_tr *a, t_lm *d, int n)
 	return (n + 1);
 }
 
-int			get_tree(t_tr *t, t_lm *data)
+static int	for_else(t_tr *all, int i, t_lm *data)
+{
+	t_tr	*temp;
+
+	i = 1;
+	while (i != 0)
+	{
+		if (!(temp = (t_tr *)malloc(sizeof(t_tr))))
+			return (0);
+		all->next = temp;
+		all = temp;
+		i = else_room(all, data, i);
+		if (i < 0)
+		{
+			ft_printf("\x1b[1;31mError\n");
+			return (0);
+		}
+	}
+	all->next = 0;
+	return (1);
+}
+
+int			get_tree(t_tr *t, t_lm *data, int i)
 {
 	t_tr	*all;
-	t_tr	*temp;
-	int		i;
 
 	if (!first_last(t, data->start, data->coments, 1))
 	{
@@ -116,20 +126,7 @@ int			get_tree(t_tr *t, t_lm *data)
 		ft_printf("was incorrectly entered!\n");
 		return (0);
 	}
-	i = 1;
-	while (i != 0 && i < 7)
-	{
-		if (!(temp = (t_tr *)malloc(sizeof(t_tr))))
-			return (0);
-		all->next = temp;
-		all = temp;
-		i = else_room(all, data, i);
-		if (i < 0)
-		{
-			ft_printf("\x1b[1;31mError\n");
-			return (0);
-		}
-	}
-	all->next = 0;
+	if (for_else(all, i, data) == 0)
+		return (0);
 	return (1);
 }
