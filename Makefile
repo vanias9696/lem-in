@@ -12,7 +12,8 @@
 
 NAME	=	lem-in
 
-FUNC	=	first.c check.c trees.c commun_rooms.c unique_ways.c last_check.c
+FUNC	=	first.c check.c trees.c commun_rooms.c unique_ways.c last_check.c	\
+			mascmp.c many_way.c
 
 OBJ		=	$(FUNC:.c=.o)
 

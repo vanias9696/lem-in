@@ -17,20 +17,29 @@ static int	data_a(t_lm *data, int i)
 	char	*line;
 
 	get_next_line(0, &line);
-	ft_printf("%s\n", line);
+	while (line && ft_strncmp("#", line, 1) == 0 && ft_strcmp(line, "##start\0")
+		!= 0 && ft_strcmp(line, "##end\0") != 0)
+	{
+		ft_printf("%s\n", line);
+		free(line);
+		get_next_line(0, &line);
+	}
+	if (line)
+		ft_printf("%s\n", line);
 	while (line && line[i] <= '9' && line[i] >= '0')
 		i++;
-	if (!line)
+	if (!line || line[0] == '\0')
 	{
 		ft_printf("\x1b[1;31mInsufficient data!\n");
 		return (0);
 	}
-	if (line[i] != '\0')
+	if (line[i] != '\0' || i > 10 || (i == 10 && ft_strcmp(line, "2147483647") > 0))
 	{
 		free(line);
 		ft_printf("\x1b[1;31mNot the correct number of ants!\n");
 		return (0);
 	}
+
 	data->ants = ft_atoi(line);
 	free(line);
 	if (data->ants == 0)
@@ -41,10 +50,11 @@ static int	data_a(t_lm *data, int i)
 	return (1);
 }
 
-static int	get_st_end(char *line, t_lm *data)
+static int	get_st_end(char *next, t_lm *data)
 {
-	if (ft_strcmp(line, "##start\0") != 0 && ft_strcmp(line, "##end\0") != 0)
-		return (pr_free("The data was incorrectly entered!", line, 0));
+	char *line;
+
+	line = ft_strdup(next);
 	if ((ft_strcmp(line, "##start\0") == 0 && data->start) ||
 		(ft_strcmp(line, "##end\0") == 0 && data->end))
 	{
@@ -52,10 +62,29 @@ static int	get_st_end(char *line, t_lm *data)
 		free(line);
 		return (0);
 	}
-	(ft_strcmp(line, "##start\0") == 0 ? get_next_line(0, &(data->start))
-		: get_next_line(0, &(data->end)));
-	(ft_strcmp(line, "##start\0") == 0 ? ft_printf("%s\n", data->start)
-		: ft_printf("%s\n", data->end));
+	while (ft_strncmp(next, "#", 1) == 0)
+	{
+		free(next);
+		if (get_next_line(0, &next) && next)
+			ft_printf("%s\n", next);
+		if (!next)
+		{
+			free(line);
+			ft_printf("\x1b[1;31mError input!\n");
+			return (0);
+		}
+		if (ft_strcmp(next, "##start\0") == 0 || ft_strcmp(next, "##end\0") == 0)
+		{
+			free(line);
+			free(next);
+			ft_printf("\x1b[1;31mError input!\n");
+			return (0);
+		}
+	}
+	if (ft_strcmp(line, "##start\0") == 0)
+		data->start = next;
+	else
+		data->end = next;
 	if ((ft_strcmp(line, "##start\0") == 0 && data->start == 0) ||
 		(ft_strcmp(line, "##end\0") == 0 && data->end == 0))
 		return (pr_free("The data was incorrectly entered!", line, 0));
@@ -81,6 +110,7 @@ static int	add_rooms(t_lm *data, int i, char *line)
 		data->rooms = joinfree(data->rooms, "\n\0", 1);
 		data->rooms = joinfree(data->rooms, line, 3);
 	}
+	data->n_rm += 1;
 	return (1);
 }
 
@@ -109,20 +139,35 @@ static int	add_coments(char *line, int i, t_lm *data)
 
 int			get_data(t_lm *data, char *line)
 {
+	int i;
+
 	if (data_a(data, 0) == 0)
 		return (0);
 	while (get_next_line(0, &line))
 	{
-		ft_printf("%s\n", line);
+		if (line)
+			ft_printf("%s\n", line);
+		while (line && ft_strncmp(line, "#", 1) == 0 && ft_strcmp(line, "##start\0")
+			!= 0 && ft_strcmp(line, "##end\0") != 0)
+		{
+			free(line);
+			i = get_next_line(0, &line);
+			if (i > 0 && line)
+				ft_printf("%s\n", line);
+			if (i == 0)
+			{
+				ft_printf("-----------------\n");
+				return (1);
+			}
+		}
 		if (!line)
 			return (0);
-		else if (ft_strncmp(line, "##", 2) == 0 && get_st_end(line, data) == 0)
-			return (0);
-		else if (ft_strncmp(line, "##", 2) != 0 &&
-			ft_strncmp(line, "#", 1) == 0)
-			free(line);
-		else if (ft_strncmp(line, "##", 2) != 0 &&
-			add_coments(line, 0, data) == 0)
+		if (ft_strncmp(line, "##", 2) == 0)
+		{
+			if (get_st_end(line, data) == 0)
+				return (0);
+		}
+		else if (add_coments(line, 0, data) == 0)
 			return (0);
 	}
 	if (data->start == 0 || data->end == 0 || data->coments == 0)

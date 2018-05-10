@@ -82,8 +82,7 @@ static char	*fill_rooms(char *name, char *room, char *com, int p)
 		}
 		else
 		{
-			if (i == 0)
-				i++;
+			i = i == 0 ? i + 1 : i;
 			while (com[i - 1] != '-')
 				i++;
 			if (ft_strncmp(com + i, name, l) == 0 &&
@@ -116,7 +115,8 @@ char		**comm_betw_rooms(char *com, char *name)
 
 	k = 0;
 	i = -1;
-	if (!(l = num_link(com, name, 0, 0)))
+	l = num_link(com, name, 0, 0);
+	if (l == 0)
 		return (0);
 	if (!(rooms = (char **)malloc(sizeof(char **) * (l + 1))))
 		return (0);

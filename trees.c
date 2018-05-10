@@ -113,8 +113,8 @@ int			get_tree(t_tr *t, t_lm *data, int i)
 
 	if (!first_last(t, data->start, data->coments, 1))
 	{
-		ft_printf("\x1b[1;31mThe data about first room ");
-		ft_printf("was incorrectly entered!\n");
+		ft_printf("\x1b[1;31mThe data about first or last ");
+		ft_printf("room was incorrectly entered!\n");
 		return (0);
 	}
 	if (!(all = (t_tr *)malloc(sizeof(t_tr))))
@@ -126,7 +126,7 @@ int			get_tree(t_tr *t, t_lm *data, int i)
 		ft_printf("was incorrectly entered!\n");
 		return (0);
 	}
-	if (for_else(all, i, data) == 0)
+	if (data->rooms != 0 && for_else(all, i, data) == 0)
 		return (0);
 	return (1);
 }
