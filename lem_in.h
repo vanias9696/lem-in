@@ -33,6 +33,7 @@ typedef struct		s_ways
 	int				len;
 	char			**way;
 	char			**used_rooms;
+	char			**an_w;
 	struct s_ways	*next;
 }					t_way;
 
@@ -53,9 +54,9 @@ char				**comm_betw_rooms(char *com, char *name);
 int					last_check(t_tr *t);
 int					pr_free(char *str, char *line, int n);
 int					unique_ways(t_tr *t, t_way *way, t_lm *data);
-
 int					mascmp(char *s, char **m);
 int					many_way(t_way **way, t_tr *t, int n_rm, int n_way);
-int					one_way(t_way *way, t_tr *t, int n_rm);
+int					all_a(char *name, int n);
+int					take_turns(int n, t_way **way);
 
 #endif

@@ -43,6 +43,8 @@ static void	free_ways(t_way *way)
 		}
 		if (way->used_rooms)
 			free(way->used_rooms);
+		if (way->an_w)
+			free(way->an_w);
 		h = way->next;
 		free(way);
 		way = h;
@@ -70,18 +72,6 @@ static void	free_tree(t_tr *t)
 		t = t->next;
 		free(temp);
 	}
-}
-
-int			all_a(char *name, int n)
-{
-	int i;
-
-	ft_printf("\nL%i-%s", 1, name);
-	i = 1;
-	while(++i <= n)
-		ft_printf(" L%i-%s", i, name);
-	ft_printf("\n");
-	return (1);
 }
 
 int			check(void)
@@ -120,8 +110,10 @@ int			check(void)
 		free_ways(way);
 		return (0);
 	}
-	if (i == 1)
+	else if (i == 1)
 		all_a(t->next->name, data->ants);
+	else
+		take_turns(data->ants, &way);
 	ft_printf("\x1b[1;37mAll good\n");
 	free_tree(t);
 	free_data(data);

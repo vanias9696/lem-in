@@ -164,7 +164,6 @@ int		many_way(t_way **way, t_tr *t, int n_rm, int n_way)
 
 	new = *way;
 	n = 1;
-	ft_printf("in also = %i\n\n", n_way);
 	while (n <= n_way)
 	{
 		if (!(new->way = (char **)malloc(sizeof(char *) * (n_rm + 1))))
@@ -203,24 +202,3 @@ int		many_way(t_way **way, t_tr *t, int n_rm, int n_way)
 	}
 	return (2);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
