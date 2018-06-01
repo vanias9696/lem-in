@@ -12,25 +12,6 @@
 
 #include "lem_in.h"
 
-static int	second_word(char *com, char *name, int i, int *n)
-{
-	int l;
-
-	l = ft_strlen(name);
-	while (com[i] != '-')
-		i++;
-	i++;
-	if (ft_strncmp(com + i, name, l) == 0)
-	{
-		i = i + ft_strlen(name);
-		if (com[i] == '\n' || com[i] == '\0')
-			(*n)++;
-	}
-	while (com[i] && com[i] != '\n')
-		i++;
-	return (i);
-}
-
 static int	num_link(char *com, char *name, int i, int n)
 {
 	int l;
@@ -58,9 +39,44 @@ static int	num_link(char *com, char *name, int i, int n)
 	return (n);
 }
 
-static char	*fill_rooms(char *name, char *room, char *com, int p)
+static char	*first_part(int *m, char *com, char *name, int p)
 {
-	int			k;
+	int		i;
+	int		k;
+	char	*room;
+
+	i = *m;
+	i = i + ft_strlen(name) + 1;
+	k = i;
+	while (com[k] && com[k] != '\n')
+		k++;
+	room = (char *)malloc(sizeof(char *) * (k - i + 1));
+	room = ft_strncpy(room, com + i, k - i);
+	room[k - i] = '\0';
+	*m = p == 1 ? 0 : k + 1;
+	return (room);
+}
+
+static char	*second_part(int *m, char *com, char *name, int p)
+{
+	int		i;
+	int		k;
+	char	*room;
+
+	i = *m - 1;
+	k = i;
+	while (k != 0 && com[k - 1] != '\n')
+		k--;
+	room = (char *)malloc(sizeof(char *) * (i - k + 1));
+	room = ft_strncpy(room, com + k, i - k);
+	room[i - k] = '\0';
+	i = p == 1 ? 0 : i + 2 + ft_strlen(name);
+	*m = i;
+	return (room);
+}
+
+static char	*fill_rooms(char *name, char *com, int p)
+{
 	static int	i;
 	int			l;
 
@@ -69,17 +85,7 @@ static char	*fill_rooms(char *name, char *room, char *com, int p)
 	{
 		if (ft_strncmp(com + i, name, l) == 0 &&
 			com[i + ft_strlen(name)] == '-')
-		{
-			i = i + ft_strlen(name) + 1;
-			k = i;
-			while (com[k] && com[k] != '\n')
-				k++;
-			room = (char *)malloc(sizeof(char *) * (k - i + 1));
-			room = ft_strncpy(room, com + i, k - i);
-			room[k - i] = '\0';
-			i = p == 1 ? 0 : k + 1;
-			return (room);
-		}
+			return (first_part(&i, com, name, p));
 		else
 		{
 			i = i == 0 ? i + 1 : i;
@@ -87,17 +93,7 @@ static char	*fill_rooms(char *name, char *room, char *com, int p)
 				i++;
 			if (ft_strncmp(com + i, name, l) == 0 &&
 				(com[i + l] == '\0' || com[i + l] == '\n'))
-			{
-				i--;
-				k = i;
-				while (k != 0 && com[k - 1] != '\n')
-					k--;
-				room = (char *)malloc(sizeof(char *) * (i - k + 1));
-				room = ft_strncpy(room, com + k, i - k);
-				room[i - k] = '\0';
-				i = p == 1 ? 0 : i + 2 + ft_strlen(name);
-				return (room);
-			}
+				return (second_part(&i, com, name, p));
 			while (com[i - 1] && com[i - 1] != '\n')
 				i++;
 		}
@@ -125,7 +121,7 @@ char		**comm_betw_rooms(char *com, char *name)
 	i = 0;
 	while (i < l)
 	{
-		rooms[i] = fill_rooms(name, rooms[i], com, i + 1 == l ? 1 : 0);
+		rooms[i] = fill_rooms(name, com, i + 1 == l ? 1 : 0);
 		if (rooms[i] == 0)
 			return (0);
 		i++;

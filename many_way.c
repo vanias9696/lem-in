@@ -12,33 +12,37 @@
 
 #include "lem_in.h"
 
-static int	write_name(t_way *way, t_tr *t)
+static int	write_first_name(t_way *way, t_tr *t, char *start)
 {
 	int k;
-	char *start;
-	int i;
+
+	k = 0;
+	while (t->rooms[k] && (ft_strcmp(t->rooms[k], start) == 0 ||
+		mascmp(t->rooms[k], way->used_rooms) == 0))
+		k++;
+	way->way[0] = t->rooms[k];
+	return (k);
+}
+
+static int	write_name(t_way *way, t_tr *t, int k, int i)
+{
+	char	*start;
 
 	k = 0;
 	start = t->name;
 	while (way->way[k])
 		k++;
 	if (k == 0)
-	{
-		while (t->rooms[k] && (ft_strcmp(t->rooms[k], start) == 0 ||
-			mascmp(t->rooms[k], way->used_rooms) == 0))
-			k++;
-		way->way[0] = t->rooms[k];
-		return (k);
-	}
-	else
-		k--;
-	while(t && ft_strcmp(t->name, way->way[k]) != 0)
+		return (write_first_name(way, t, start));
+	k--;
+	while (t && ft_strcmp(t->name, way->way[k]) != 0)
 		t = t->next;
 	if (!t)
 		return (-1);
 	i = 0;
-	while (t->rooms[i] && (ft_strcmp(t->rooms[i], start) == 0 ||
-		mascmp(t->rooms[i], way->way) == 0 || mascmp(t->rooms[i], way->used_rooms) == 0))
+	while (t->rooms[i] && (!ft_strcmp(t->rooms[i], start) ||
+		!mascmp(t->rooms[i], way->way) ||
+		!mascmp(t->rooms[i], way->used_rooms)))
 		i++;
 	if (t->rooms[i])
 	{
@@ -53,33 +57,25 @@ static int	next_name(t_way *way, t_tr *t, int k)
 	int		i;
 	char	*start;
 
-	i = 0;
 	start = t->name;
-	if (k == 0)
+	if (k != 0)
 	{
-		while(ft_strcmp(way->way[k], t->rooms[i]) != 0)
-			i++;
-		i++;
-		while (t->rooms[i] && (ft_strcmp(t->rooms[i], start) == 0 ||
-			mascmp(t->rooms[i], way->way) == 0 || mascmp(t->rooms[i], way->used_rooms) == 0))
-			i++;
-		way->way[k] = t->rooms[i];
-		return (t->rooms[i] == 0 ? 0 : 1);
+		while (ft_strcmp(way->way[k - 1], t->name) != 0)
+			t = t->next;
 	}
-	while(ft_strcmp(way->way[k - 1], t->name) != 0)
-		t = t->next;
 	i = 0;
-	while(ft_strcmp(way->way[k], t->rooms[i]) != 0)
+	while (ft_strcmp(way->way[k], t->rooms[i]) != 0)
 		i++;
 	i++;
 	while (t->rooms[i] && (ft_strcmp(t->rooms[i], start) == 0 ||
-		mascmp(t->rooms[i], way->way) == 0 || mascmp(t->rooms[i], way->used_rooms) == 0))
+		mascmp(t->rooms[i], way->way) == 0 ||
+		mascmp(t->rooms[i], way->used_rooms) == 0))
 		i++;
 	way->way[k] = t->rooms[i];
 	return (t->rooms[i] == 0 ? 0 : 1);
 }
 
-static int	test_way(t_way *way, t_tr *t, int i, int k)
+int			test_way(t_way *way, t_tr *t, int i, int k)
 {
 	int m;
 
@@ -89,7 +85,7 @@ static int	test_way(t_way *way, t_tr *t, int i, int k)
 		way->way[k] = 0;
 		return (0);
 	}
-	if (write_name(way, t) < 0)
+	if (write_name(way, t, 0, 0) < 0)
 		return (0);
 	if (ft_strcmp(t->next->name, way->way[k]) == 0)
 		return (1);
@@ -104,101 +100,4 @@ static int	test_way(t_way *way, t_tr *t, int i, int k)
 			return (1);
 	}
 	return (1);
-}
-
-
-
-
-
-
-
-
-
-
-
-static char	**used_r(int n, t_way *way, char **er)
-{
-	int		i;
-	int		k;
-	int		q;
-	t_way	*h;
-
-	i = 1;
-	q = 0;
-	h = way;
-	if (n == 1)
-		return (0);
-	while(i < n)
-	{
-		k = -1;
-		while(way->way[++k])
-			q++;
-		way = way->next;
-		q--;
-		i++;
-	}
-	er = (char **)malloc(sizeof(char *) * (q + 1));
-	er[q] = 0;
-	i = 1;
-	q = -1;
-	while (i < n)
-	{
-		k = 0;
-		while(h->way[k + 1])
-		{
-			er[++q] = ft_strdup(h->way[k]);
-			k++;
-		}
-		h = h->next;
-		i++;
-	}
-	return (er);
-}
-
-int		many_way(t_way **way, t_tr *t, int n_rm, int n_way)
-{
-	t_way	*new;
-	int		i;
-	int		n;
-	int		k;
-
-	new = *way;
-	n = 1;
-	while (n <= n_way)
-	{
-		if (!(new->way = (char **)malloc(sizeof(char *) * (n_rm + 1))))
-		{
-			if (n == 1)
-				return(pr_free("Memory error!", 0, 0));
-			return (2);
-		}
-		new->used_rooms = used_r(n, *way, new->used_rooms);
-		new->next = 0;
-		i = -1;
-		while(++i <= n_rm)
-			new->way[i] = 0;
-		i = n == 1 ? 1 : (*way)->len - 2;
-		while (++i < n_rm)
-		{
-			if (test_way(new, t, i, 0) == 1)
-				break ;
-			k = -1;
-			while (new->way[++k])
-				new->way[k] = 0;
-		}
-		new->len = i;
-		new->num = n;
-		if (i == n_rm && n == 1)
-			return(pr_free("Way not found!", 0, 0));
-		if (i == n_rm)
-			return (2);
-		if (n < n_way)
-		{
-			if (!(new->next = (t_way *)malloc(sizeof(t_way))))
-				return (2);
-			new = new->next;
-		}
-		n++;
-	}
-	return (2);
 }

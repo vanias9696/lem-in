@@ -70,16 +70,16 @@ static int	else_room(t_tr *a, t_lm *d, int n)
 		i++;
 	a->note = 0;
 	if (!(a->name = (char *)malloc(sizeof(char *) * (i + 1))))
-		return (-1);
+		return (pr_free("Error memory!", 0, 0, -1));
 	a->name = ft_strncpy(a->name, d->rooms + k, i);
 	a->name[i] = '\0';
 	a->x = ft_atoi(d->rooms + k + 1 + i);
 	a->y = ft_atoi(d->rooms + k + 1 + i + len_num(a->x));
 	if (i == 0)
-		return (-1);
+		return (pr_free("Room's name is very small!", 0, 0, -1));
 	a->rooms = comm_betw_rooms(d->coments, a->name);
 	if (a->rooms == 0)
-		return (-1);
+		return (pr_free("Room has not link", 0, 0, -1));
 	if (ft_while_not_n(d->rooms + k, '\n') < 0)
 		return (0);
 	return (n + 1);
@@ -98,10 +98,7 @@ static int	for_else(t_tr *all, int i, t_lm *data)
 		all = temp;
 		i = else_room(all, data, i);
 		if (i < 0)
-		{
-			ft_printf("\x1b[1;31mError\n");
 			return (0);
-		}
 	}
 	all->next = 0;
 	return (1);
@@ -111,6 +108,8 @@ int			get_tree(t_tr *t, t_lm *data, int i)
 {
 	t_tr	*all;
 
+	if (data->start == 0 || data->end == 0 || data->coments == 0)
+		return (pr_free("Data is not enough!", 0, 0, 0));
 	if (!first_last(t, data->start, data->coments, 1))
 	{
 		ft_printf("\x1b[1;31mThe data about first or last ");
@@ -127,6 +126,8 @@ int			get_tree(t_tr *t, t_lm *data, int i)
 		return (0);
 	}
 	if (data->rooms != 0 && for_else(all, i, data) == 0)
+		return (0);
+	if (non_existent_room(data, t) == 0)
 		return (0);
 	return (1);
 }

@@ -13,7 +13,7 @@
 NAME	=	lem-in
 
 FUNC	=	first.c check.c trees.c commun_rooms.c unique_ways.c last_check.c	\
-			mascmp.c many_way.c output_ants.c
+			mascmp.c many_way.c output_ants.c get_arg.c
 
 OBJ		=	$(FUNC:.c=.o)
 

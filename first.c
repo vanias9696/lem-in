@@ -12,20 +12,6 @@
 
 #include "lem_in.h"
 
-static void	free_data(t_lm *data)
-{
-	if (data && data->rooms)
-		free(data->rooms);
-	if (data && data->coments)
-		free(data->coments);
-	if (data && data->start)
-		free(data->start);
-	if (data && data->end)
-		free(data->end);
-	if (data)
-		free(data);
-}
-
 static void	free_ways(t_way *way)
 {
 	t_way	*h;
@@ -36,7 +22,7 @@ static void	free_ways(t_way *way)
 		i = 0;
 		if (way->way)
 			free(way->way);
-		while(way->used_rooms && way->used_rooms[i])
+		while (way->used_rooms && way->used_rooms[i])
 		{
 			free(way->used_rooms[i]);
 			i++;
@@ -49,7 +35,6 @@ static void	free_ways(t_way *way)
 		free(way);
 		way = h;
 	}
-
 }
 
 static void	free_tree(t_tr *t)
@@ -61,69 +46,83 @@ static void	free_tree(t_tr *t)
 	{
 		if (t->name)
 			free(t->name);
+		i = 0;
+		while (t->rooms && t->rooms[i])
+			free(t->rooms[i++]);
 		if (t->rooms)
-		{
-			i = 0;
-			while (t->rooms[i])
-				free(t->rooms[i++]);
 			free(t->rooms);
-		}
 		temp = t;
 		t = t->next;
 		free(temp);
 	}
 }
 
-int			check(void)
+static int	by_z(t_lm *data, t_tr *t)
+{
+	if (data)
+	{
+		data->rooms = 0;
+		data->coments = 0;
+		data->start = 0;
+		data->end = 0;
+		data->n_rm = 2;
+	}
+	if (t)
+	{
+		t->name = 0;
+		t->rooms = 0;
+		t->next = 0;
+	}
+	return (1);
+}
+
+static int	free_data(t_lm *data, t_way *way, t_tr *t, char **argv)
+{
+	if (data && data->rooms)
+		free(data->rooms);
+	if (data && data->coments)
+		free(data->coments);
+	if (data && data->start)
+		free(data->start);
+	if (data && data->end)
+		free(data->end);
+	if (data)
+		free(data);
+	if (way)
+		free_ways(way);
+	if (t)
+		free_tree(t);
+	ft_printf("\x1b[1;37m");
+	if (argv && mascmp("-error\0", argv) == 0)
+		correct_data();
+	return (0);
+}
+
+int			main(int argc, char **argv)
 {
 	t_lm	*data;
 	t_tr	*t;
 	t_way	*way;
 	int		i;
 
+	if (get_arg(argc, argv) == 0)
+	{
+		ft_printf("\x1b[1;31mFlags were incorrectly entered.\n");
+		return (ft_printf("Allowed flags are:\n-colour;\n-error.\n\x1b[1;37m"));
+	}
 	if (!(data = (t_lm *)malloc(sizeof(t_lm))))
 		return (0);
-	data->rooms = NULL;
-	data->coments = NULL;
-	data->start = NULL;
-	data->end = NULL;
-	data->n_rm = 2;
-	if (get_data(data, 0) == 0 || !(t = (t_tr *)malloc(sizeof(t_tr))))
-	{
-		ft_printf("\x1b[1;37m");
-		free_data(data);
-		return (0);
-	}
-	if (get_tree(t, data, 1) == 0 || last_check(t) == 0 || !(way = (t_way *)malloc(sizeof(t_way))))
-	{
-		ft_printf("\x1b[1;37m");
-		free_tree(t);
-		free_data(data);
-		return (0);
-	}
-	i = unique_ways(t, way, data);
-	if (i == 0)
-	{
-		ft_printf("\x1b[1;37m");
-		free_tree(t);
-		free_data(data);
-		free_ways(way);
-		return (0);
-	}
+	if (by_z(data, 0) == 0 || data_a(data, 0, 0) == 0 || !get_data(data, 0, 0)
+		|| !(t = (t_tr *)malloc(sizeof(t_tr))))
+		return (free_data(data, 0, 0, argv));
+	if (by_z(0, t) == 0 || get_tree(t, data, 1) == 0 || last_check(t) == 0
+		|| !(way = (t_way *)malloc(sizeof(t_way))))
+		return (free_data(data, 0, t, argv));
+	if (!(i = unique_ways(t, way, data)) && i == 0)
+		return (free_data(data, way, t, argv));
 	else if (i == 1)
-		all_a(t->next->name, data->ants);
+		all_a(t->next->name, data->ants, argv);
 	else
-		take_turns(data->ants, &way);
-	ft_printf("\x1b[1;37mAll good\n");
-	free_tree(t);
-	free_data(data);
-	free_ways(way);
-	return (1);
-}
-
-int			main(void)
-{
-	check();
-	system("leaks lem-in -quiet");
-	return (1);
+		take_turns(data->ants, &way, argv);
+	return (free_data(data, way, t, 0));
 }

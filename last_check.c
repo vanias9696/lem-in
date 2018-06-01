@@ -35,25 +35,23 @@ static int	same_names(t_tr *t)
 	return (1);
 }
 
-static int	identical_links(t_tr *t)
+static void	identical_links(t_tr *t, int i, int k)
 {
 	t_tr	*help;
-	int		i;
-	int		k;
 
 	i = 0;
 	help = t;
 	while (help)
 	{
-		i = 0;
-		while (help->rooms[i + 1])
+		i = -1;
+		while (help->rooms[++i + 1])
 		{
 			k = i;
 			while (help->rooms[++k])
 				if (ft_strcmp(help->rooms[i], help->rooms[k]) == 0)
 				{
 					free(help->rooms[k]);
-					while(help->rooms[k + 1])
+					while (help->rooms[k + 1])
 					{
 						help->rooms[k] = help->rooms[k + 1];
 						k++;
@@ -61,11 +59,9 @@ static int	identical_links(t_tr *t)
 					help->rooms[k] = help->rooms[k + 1];
 					k = i;
 				}
-			i++;
 		}
 		help = help->next;
 	}
-	return (1);
 }
 
 static int	existence_rooms(t_tr *t)
@@ -94,7 +90,7 @@ static int	existence_rooms(t_tr *t)
 	return (1);
 }
 
-static int	first_L(t_tr *t)
+static int	first_l(t_tr *t)
 {
 	while (t)
 	{
@@ -112,11 +108,10 @@ int			last_check(t_tr *t)
 {
 	if (same_names(t) == 0)
 		return (0);
-	if (identical_links(t) == 0)
-		return (0);
+	identical_links(t, 0, 0);
 	if (existence_rooms(t) == 0)
 		return (0);
-	if (first_L(t) == 0)
+	if (first_l(t) == 0)
 		return (0);
 	return (1);
 }
